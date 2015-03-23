@@ -11,7 +11,7 @@ SkyWarriors.Stage1 = function() {
 	this.currentWeapon = 0;
 	this.weaponName = null;
 	
-	this.drone1Rate = 1000;
+	this.drone1Rate = 2000;
 	this.drone1Timer = 0;
 	
 	this.healthString = "";
@@ -44,7 +44,7 @@ SkyWarriors.Stage1.prototype = {
 		
 		// ships exhaust
 		shipTrail = game.add.emitter(this.player.x - 50, this.player.y + 23, 400);
-		shipTrail.width = 10;
+		shipTrail.width = 15;
 		//shipTrail.height = 10;
 		shipTrail.makeParticles('shiptrails');
 		shipTrail.setXSpeed(-200, -180);
@@ -214,6 +214,13 @@ SkyWarriors.Stage1.prototype = {
 			drone1 = new Drone1(this.game, 0, 0);
 			this.drones1.add(drone1);
 		}
+		this.addEnemyEmitterTrail(drone1);
+		drone1.trail.start(false, 800, 1);
+		drone1.update = function() {
+			drone1.trail.x = drone1.x;
+			drone1.trail.y = drone1.y - 10;
+		}
+		
 		
 		drone1.reset(x, y);
 		drone1.revive();
@@ -250,6 +257,16 @@ SkyWarriors.Stage1.prototype = {
 			this.healthText.fill = '#ff0044';
 		}
 		this.healthText.text = this.healthString + health + '%';
+	},
+	addEnemyEmitterTrail: function(enemy) {
+		var enemyTrail = game.add.emitter(enemy.x, this.player.y - 10, 100);
+		enemyTrail.width = 10;
+		enemyTrail.makeParticles('enemytrails');
+		enemyTrail.setXSpeed(20, -20);
+		enemyTrail.setRotation(50, -50);
+		enemyTrail.setAlpha(0.4, 0, 800);
+		enemyTrail.setScale(0.01, 0.1, 0.01, 0.1, 1000, Phaser.Easing.Quintic.Out);
+		enemy.trail = enemyTrail;
 	},
 	
 };

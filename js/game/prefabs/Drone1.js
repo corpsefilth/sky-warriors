@@ -13,7 +13,7 @@ var Drone1 = function(game, x, y, key) {
 	
 	this.damageAmount = 10;
 	
-	// this.events.onKilled.add(this.onKilled, this);
+	this.events.onKilled.add(this.onKilled, this);
 	this.events.onRevived.add(this.onRevived, this);
 };
 
@@ -26,8 +26,8 @@ Drone1.prototype.onRevived = function() {
 	this.body.velocity.x = -400;
 };
 
-/*
+
 Drone1.prototype.onKilled = function() {
 	this.animations.frame = 0;
+	this.trail.kill();
 };
-*/
