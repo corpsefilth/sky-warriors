@@ -161,8 +161,10 @@ SkyWarriors.Stage1.prototype = {
 		}
 		// check for collisions
 		this.game.physics.arcade.overlap(this.player, this.drones1, this.shipCollide, null, this);
+		this.game.physics.arcade.overlap(this.player, this.drones2, this.shipCollide, null, this);
 		// check if bullet hits enemy
 		this.game.physics.arcade.overlap(this.weapons[this.currentWeapon], this.drones1, this.bulletHitsEnemy, null, this);
+		this.game.physics.arcade.overlap(this.weapons[this.currentWeapon], this.drones2, this.bulletHitsEnemy, null, this);
 	},
 	
 	nextWeapon: function() {
@@ -225,7 +227,7 @@ SkyWarriors.Stage1.prototype = {
 		drone1.trail.start(false, 800, 1);
 		drone1.update = function() {
 			drone1.trail.x = drone1.x;
-			drone1.trail.y = drone1.y - 10;
+			drone1.trail.y = drone1.y - 8;
 		}
 		
 		
@@ -234,8 +236,6 @@ SkyWarriors.Stage1.prototype = {
 	},
 	
 	launchDrone2: function() {
-		//var x = this.game.width;
-		//var y = this.game.rnd.integerInRange(50, this.game.world.height);
 		
 		var drone2 = this.drones2.getFirstExists(false);
 		if(!drone2) {
@@ -245,8 +245,8 @@ SkyWarriors.Stage1.prototype = {
 		this.addEnemyEmitterTrail(drone2);
 		drone2.trail.start(false, 800, 1);
 		drone2.update = function() {
-			drone2.trail.x = drone2.x;
-			drone2.trail.y = drone2.y - 10;
+			drone2.trail.x = drone2.x + 25;
+			drone2.trail.y = drone2.y + 8;
 		}
 		
 		
@@ -290,6 +290,7 @@ SkyWarriors.Stage1.prototype = {
 	addEnemyEmitterTrail: function(enemy) {
 		var enemyTrail = game.add.emitter(enemy.x, this.player.y - 10, 100);
 		enemyTrail.width = 10;
+		enemyTrail.height = 10;
 		enemyTrail.makeParticles('enemytrails');
 		enemyTrail.setXSpeed(20, -20);
 		enemyTrail.setRotation(50, -50);
