@@ -21,6 +21,7 @@ SkyWarriors.Preload.prototype = {
 		this.load.image('enemytrails', 'assets/images/enemytrails.png');
 		this.load.image('miniDrone', 'assets/images/drone1.png');
 		this.load.image('shootDrone', 'assets/images/drone2.png');
+		this.load.image('droneBullet', 'assets/images/enemyBullet.png');
 		this.load.spritesheet('muzzleAnim', 'assets/images/muzzleanim2.png', 128, 138);
 		this.load.spritesheet('explosion', 'assets/images/explosionamin.png', 340, 340);
 		

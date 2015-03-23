@@ -1,7 +1,6 @@
 var Drone2 = function(game, x, y, key) {
 	key = 'shootDrone';
 	Phaser.Sprite.call(this, game, x, y, key);
-	var DRONE_SPEED = 300;
 	
 	this.scale.setTo(0.3);
 	this.anchor.setTo(0.5);

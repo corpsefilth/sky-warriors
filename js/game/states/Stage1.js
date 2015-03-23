@@ -1,7 +1,8 @@
 SkyWarriors.Stage1 = function() {
-	this.player = null;
+	// this.player;
 	this.cursors = null;
 	this.speed = 600;
+	this.droneBullets
 	var shipTrail;
 	var explosions;
 	var playerDeath;
@@ -67,6 +68,24 @@ SkyWarriors.Stage1.prototype = {
 		// enemy groups
 		this.drones1 = this.game.add.group();
 		this.drones2 = this.game.add.group();
+		
+		// Drone bullets
+		this.droneBullets = this.game.add.group();
+		this.droneBullets.enableBody = true;
+		this.physics.arcade.enable(this.droneBullets);
+		this.droneBullets.createMultiple(30, 'droneBullet');
+		this.droneBullets.setAll('alpha', 0.9);
+		this.droneBullets.setAll('anchor.x', 0.5);
+		this.droneBullets.setAll('anchor.y', 0.5);
+		this.droneBullets.setAll('scale.x', 0.3);
+		this.droneBullets.setAll('scale.y', 0.3);
+		this.droneBullets.setAll('outOfBoundsKill', true);
+		this.droneBullets.setAll('checkWorldBounds', true);
+		this.droneBullets.setAll('damageAmount', 20);
+		this.droneBullets.forEach(function(enemy) {
+			//enemy.body.setSize(20, 20);
+			this.damageAmount = 10;
+		});
 		
 		// weapons 
 		this.weapons.push(new Weapon.SingleBullet(this.game));
@@ -165,6 +184,9 @@ SkyWarriors.Stage1.prototype = {
 		// check if bullet hits enemy
 		this.game.physics.arcade.overlap(this.weapons[this.currentWeapon], this.drones1, this.bulletHitsEnemy, null, this);
 		this.game.physics.arcade.overlap(this.weapons[this.currentWeapon], this.drones2, this.bulletHitsEnemy, null, this);
+		
+		// enemy bullet hist player
+		this.game.physics.arcade.overlap(this.droneBullets, this.player, this.enemyHitsPlayer, null, this);
 	},
 	
 	nextWeapon: function() {
@@ -235,26 +257,6 @@ SkyWarriors.Stage1.prototype = {
 		drone1.revive();
 	},
 	
-	launchDrone2: function() {
-		
-		var drone2 = this.drones2.getFirstExists(false);
-		if(!drone2) {
-			drone2 = new Drone2(this.game, 0, 0);
-			this.drones2.add(drone2);
-		}
-		this.addEnemyEmitterTrail(drone2);
-		drone2.trail.start(false, 800, 1);
-		drone2.update = function() {
-			drone2.trail.x = drone2.x + 25;
-			drone2.trail.y = drone2.y + 8;
-		}
-		
-		
-		drone2.reset(this.game.rnd.integerInRange(0, this.game.width), -20);
-		drone2.revive();
-		
-	},
-	
 	shipCollide: function(player, enemy) {
 		enemy.kill();
 		player.damage(enemy.damageAmount);
@@ -280,12 +282,70 @@ SkyWarriors.Stage1.prototype = {
 		currentEnemy.kill();
 		bullet.kill();
 	},
+	enemyHitsPlayer: function(enemyBullet, player) {
+		enemyBullet.kill();
+		player.damage(enemyBullet.damageAmount);
+		this.updateHealth(player.health);
+		
+		if(player.alive) {
+			var explosion = explosions.getFirstExists(false);
+			explosion.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
+			explosion.alpha = 0.7;
+			explosion.play('explosion', 30, false, true);
+		} else {
+			playerDeath.x = player.x;
+			playerDeath.y = player.y;
+			playerDeath.start(false, 1000, 10, 10);
+		}
+	},
 	updateHealth: function(health) {
 		if(health <= 100) {
 			this.healthString = 'Health: ';
 			this.healthText.fill = '#ff0044';
 		}
 		this.healthText.text = this.healthString + health + '%';
+	},
+	launchDrone2: function() {
+		
+		var drone2 = this.drones2.getFirstExists(false);
+		if(!drone2) {
+			drone2 = new Drone2(this.game, 0, 0);
+			this.drones2.add(drone2);
+		}
+		this.addEnemyEmitterTrail(drone2);
+		drone2.trail.start(false, 800, 1);
+		
+		// set up firing
+		var bulletSpeed = 500;
+		var firingDelay = 2000;
+		var tmpPlayer = this.player;
+		drone2.bullets = 1;
+		drone2.lastShot = 0;
+		enemyBullet = this.droneBullets.getFirstExists(false);
+		
+		drone2.update = function() {
+			drone2.trail.x = drone2.x + 25;
+			drone2.trail.y = drone2.y + 8;
+			
+			// Fire
+			if (enemyBullet &&
+				this.alive &&
+				this.bullets &&
+				this.y > this.game.width / 8 &&
+				this.game.time.now > firingDelay + this.lastShot) {
+					
+					this.lastShot = this.game.time.now;
+					this.bullets--;
+					enemyBullet.reset(this.x, this.y + this.height / 2);
+					enemyBullet.damageAmount = this.damageAmount;
+					var angle = this.game.physics.arcade.moveToObject(enemyBullet, tmpPlayer, bulletSpeed);
+					enemyBullet.angle = this.game.math.radToDeg(angle);
+				}
+		}
+		
+		drone2.reset(this.game.rnd.integerInRange(0, this.game.width), -20);
+		drone2.revive();
+		
 	},
 	addEnemyEmitterTrail: function(enemy) {
 		var enemyTrail = game.add.emitter(enemy.x, this.player.y - 10, 100);
