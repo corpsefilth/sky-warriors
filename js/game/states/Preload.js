@@ -20,6 +20,7 @@ SkyWarriors.Preload.prototype = {
 		this.load.image('shiptrails', 'assets/images/trails.png');
 		this.load.image('miniDrone', 'assets/images/drone1.png');
 		this.load.spritesheet('muzzleAnim', 'assets/images/muzzleanim2.png', 128, 138);
+		this.load.spritesheet('explosion', 'assets/images/explosionamin.png', 340, 340);
 		
 		// load our bullets
 		for (var i = 1; i <= 11; i++) {

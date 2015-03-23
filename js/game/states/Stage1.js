@@ -3,6 +3,8 @@ SkyWarriors.Stage1 = function() {
 	this.cursors = null;
 	this.speed = 600;
 	var shipTrail;
+	var explosions;
+	var playerDeath;
 	//this.player.health = 100;
 	
 	this.weapons = [];
@@ -81,6 +83,27 @@ SkyWarriors.Stage1.prototype = {
 		}
 		this.weapons[this.currentWeapon].visible = true;
 		this.weaponName = this.add.bitmapText(8, 0, 'shmup', "Current Weapon: " + this.weapons[this.currentWeapon].name, 24);
+		
+		// an explosion pool
+		explosions = game.add.group();
+		explosions.enableBody = true;
+		this.physics.arcade.enable(explosions);
+		explosions.createMultiple(30, 'explosion');
+		explosions.setAll('anchor.x', 0.5);
+		explosions.setAll('anchor.y', 0.5);
+		explosions.setAll('scale.x', 0.3);
+		explosions.setAll('scale.y', 0.3);
+		explosions.forEach(function(explosion) {
+			explosion.animations.add('explosion');
+		});
+		
+		// Big Explosion
+		playerDeath = game.add.emitter(this.player.x, this.player.y);
+		playerDeath.width = 50;
+		playerDeath.height = 50;
+		playerDeath.makeParticles('explosion', [1,2,3,4,5,6,7], 10);
+		playerDeath.setAlpha(0.9, 0, 800);
+		playerDeath.setScale(0.1, 0.6, 0.1, 0.6, 1000, Phaser.Easing.Quintic.out);
 		
 		// Shields stat
 		this.healthString = 'Shields: ';
@@ -200,8 +223,24 @@ SkyWarriors.Stage1.prototype = {
 		enemy.kill();
 		player.damage(enemy.damageAmount);
 		this.updateHealth(player.health);
+		
+		if(player.alive) {
+			var explosion = explosions.getFirstExists(false);
+			explosion.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
+			explosion.alpha = 0.7;
+			explosion.play('explosion', 30, false, true);
+		} else {
+			playerDeath.x = player.x;
+			playerDeath.y = player.y;
+			playerDeath.start(false, 1000, 10, 10);
+		}
 	},
 	bulletHitsEnemy: function(bullet, currentEnemy) {
+		var explosion = explosions.getFirstExists(false);
+		explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
+		explosion.body.velocity.y = currentEnemy.body.velocity.y;
+		explosion.alpha = 0.7;
+		explosion.play('explosion', 30, false, true);
 		currentEnemy.kill();
 		bullet.kill();
 	},
