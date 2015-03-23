@@ -11,8 +11,11 @@ SkyWarriors.Stage1 = function() {
 	this.currentWeapon = 0;
 	this.weaponName = null;
 	
-	this.drone1Rate = 2000;
+	this.drone1Rate = 1500;
 	this.drone1Timer = 0;
+	
+	this.drone2Rate = 2000;
+	this.drone2Timer = 0;
 	
 	this.healthString = "";
 	this.healthText;
@@ -61,8 +64,9 @@ SkyWarriors.Stage1.prototype = {
 		this.gunMuzzle.visible = false;
 		this.gunMuzzle.animations.add('muzzle', [1, 2, 3, 4, 5], 30, true);
 		
-		// enemy group
+		// enemy groups
 		this.drones1 = this.game.add.group();
+		this.drones2 = this.game.add.group();
 		
 		// weapons 
 		this.weapons.push(new Weapon.SingleBullet(this.game));
@@ -134,7 +138,6 @@ SkyWarriors.Stage1.prototype = {
 		shipTrail.emitX = this.player.x - 50;
 		shipTrail.emitY = this.player.y + 23;
 		
-		
 		if ((this.fireButton.isDown || this.input.activePointer.isDown) && this.player.alive) {
 			this.weapons[this.currentWeapon].fire(this.player);
 			this.gunMuzzle.visible = true;
@@ -152,9 +155,13 @@ SkyWarriors.Stage1.prototype = {
 			this.drone1Timer = this.game.time.now + this.drone1Rate;
 		}
 		
+		if(this.drone2Timer < this.game.time.now) {
+			this.launchDrone2();
+			this.drone2Timer = this.game.time.now + this.drone2Rate;
+		}
 		// check for collisions
 		this.game.physics.arcade.overlap(this.player, this.drones1, this.shipCollide, null, this);
-		// check for collisions
+		// check if bullet hits enemy
 		this.game.physics.arcade.overlap(this.weapons[this.currentWeapon], this.drones1, this.bulletHitsEnemy, null, this);
 	},
 	
@@ -224,6 +231,28 @@ SkyWarriors.Stage1.prototype = {
 		
 		drone1.reset(x, y);
 		drone1.revive();
+	},
+	
+	launchDrone2: function() {
+		//var x = this.game.width;
+		//var y = this.game.rnd.integerInRange(50, this.game.world.height);
+		
+		var drone2 = this.drones2.getFirstExists(false);
+		if(!drone2) {
+			drone2 = new Drone2(this.game, 0, 0);
+			this.drones2.add(drone2);
+		}
+		this.addEnemyEmitterTrail(drone2);
+		drone2.trail.start(false, 800, 1);
+		drone2.update = function() {
+			drone2.trail.x = drone2.x;
+			drone2.trail.y = drone2.y - 10;
+		}
+		
+		
+		drone2.reset(this.game.rnd.integerInRange(0, this.game.width), -20);
+		drone2.revive();
+		
 	},
 	
 	shipCollide: function(player, enemy) {
