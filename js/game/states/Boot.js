@@ -22,8 +22,8 @@ SkyWarriors.Boot.prototype = {
 		} else {
 			// game sacle: min: 480X260, max: 1026X768
 			this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-			this.scale.minWidth = 568;
-			this.scale.minHeight = 600;
+			this.scale.minWidth = 320;
+			this.scale.minHeight = 540;
 			this.scale.maxWidth = 2048;
 			this.scale.maxHeight = 1536;
 			this.scale.forceLandscape = true;

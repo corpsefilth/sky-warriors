@@ -21,6 +21,10 @@ SkyWarriors.Stage1 = function() {
 	this.healthString = "";
 	this.healthText;
 	
+	this.scoreString = "";
+	this.scoreText;
+	this.score = 0;
+	
 };
 
 SkyWarriors.Stage1.prototype = {
@@ -129,7 +133,10 @@ SkyWarriors.Stage1.prototype = {
 		
 		// Shields stat
 		this.healthString = 'Shields: ';
-		this.healthText = this.game.add.text(game.world.width - 400, 10, this.healthString + this.player.health + '%', { font: '34px Arial', fill: '#000'});
+		this.healthText = this.game.add.text(this.game.world.width - 300, 10, this.healthString + this.player.health + '%', { font: '34px Arial', fill: '#000'});
+		
+		this.scoreString = 'Score: ';
+		this.scoreText = this.game.add.text(this.game.world.width - 300, 50, this.scoreString + this.score, { font: '34px Arial', fill: '#000'});
 		
 		// some controls to play the game with
 		this.cursors = this.game.input.keyboard.createCursorKeys();
@@ -259,17 +266,18 @@ SkyWarriors.Stage1.prototype = {
 	shipCollide: function(player, enemy) {
 		enemy.kill();
 		player.damage(enemy.damageAmount);
-		this.updateHealth(player.health);
 		
 		if(player.alive) {
 			var explosion = explosions.getFirstExists(false);
 			explosion.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
 			explosion.alpha = 0.7;
 			explosion.play('explosion', 30, false, true);
+			this.updateHealth(player.health);
 		} else {
 			playerDeath.x = player.x;
 			playerDeath.y = player.y;
 			playerDeath.start(false, 1000, 10, 10);
+			this.healthText.text = "KIA"
 		}
 	},
 	bulletHitsEnemy: function(bullet, currentEnemy) {
@@ -280,11 +288,14 @@ SkyWarriors.Stage1.prototype = {
 		explosion.play('explosion', 30, false, true);
 		currentEnemy.kill();
 		bullet.kill();
+		
+		// console.log(currentEnemy);
+		this.score += currentEnemy.damageAmount * 10;
+		this.scoreText.text = this.scoreString + this.score;
 	},
 	enemyHitsPlayer: function(player, bullet) {
 		// console.log(player);
 		player.damage(bullet.damageAmount);
-		this.updateHealth(player.health);
 		bullet.kill();
 		
 		if(player.alive) {
@@ -292,10 +303,12 @@ SkyWarriors.Stage1.prototype = {
 			explosion.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
 			explosion.alpha = 0.7;
 			explosion.play('explosion', 30, false, true);
+			this.updateHealth(player.health);
 		} else {
 			playerDeath.x = player.x;
 			playerDeath.y = player.y;
 			playerDeath.start(false, 1000, 10, 10);
+			this.healthText.text = "KIA"
 		}
 		
 	},
