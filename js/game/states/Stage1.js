@@ -73,7 +73,7 @@ SkyWarriors.Stage1.prototype = {
 		this.droneBullets = this.game.add.group();
 		this.droneBullets.enableBody = true;
 		this.physics.arcade.enable(this.droneBullets);
-		this.droneBullets.createMultiple(30, 'droneBullet');
+		this.droneBullets.createMultiple(10, 'droneBullet');
 		this.droneBullets.setAll('alpha', 0.9);
 		this.droneBullets.setAll('anchor.x', 0.5);
 		this.droneBullets.setAll('anchor.y', 0.5);
@@ -81,10 +81,9 @@ SkyWarriors.Stage1.prototype = {
 		this.droneBullets.setAll('scale.y', 0.3);
 		this.droneBullets.setAll('outOfBoundsKill', true);
 		this.droneBullets.setAll('checkWorldBounds', true);
-		this.droneBullets.setAll('damageAmount', 20);
 		this.droneBullets.forEach(function(enemy) {
 			//enemy.body.setSize(20, 20);
-			this.damageAmount = 10;
+			enemy.damageAmount = 20;
 		});
 		
 		// weapons 
@@ -186,7 +185,7 @@ SkyWarriors.Stage1.prototype = {
 		this.game.physics.arcade.overlap(this.weapons[this.currentWeapon], this.drones2, this.bulletHitsEnemy, null, this);
 		
 		// enemy bullet hist player
-		this.game.physics.arcade.overlap(this.droneBullets, this.player, this.enemyHitsPlayer, null, this);
+		this.game.physics.arcade.overlap(this.player, this.droneBullets, this.enemyHitsPlayer, null, this);
 	},
 	
 	nextWeapon: function() {
@@ -282,10 +281,11 @@ SkyWarriors.Stage1.prototype = {
 		currentEnemy.kill();
 		bullet.kill();
 	},
-	enemyHitsPlayer: function(enemyBullet, player) {
-		enemyBullet.kill();
-		player.damage(enemyBullet.damageAmount);
+	enemyHitsPlayer: function(player, bullet) {
+		// console.log(player);
+		player.damage(bullet.damageAmount);
 		this.updateHealth(player.health);
+		bullet.kill();
 		
 		if(player.alive) {
 			var explosion = explosions.getFirstExists(false);
@@ -297,6 +297,7 @@ SkyWarriors.Stage1.prototype = {
 			playerDeath.y = player.y;
 			playerDeath.start(false, 1000, 10, 10);
 		}
+		
 	},
 	updateHealth: function(health) {
 		if(health <= 100) {
@@ -337,7 +338,6 @@ SkyWarriors.Stage1.prototype = {
 					this.lastShot = this.game.time.now;
 					this.bullets--;
 					enemyBullet.reset(this.x, this.y + this.height / 2);
-					enemyBullet.damageAmount = this.damageAmount;
 					var angle = this.game.physics.arcade.moveToObject(enemyBullet, tmpPlayer, bulletSpeed);
 					enemyBullet.angle = this.game.math.radToDeg(angle);
 				}
